@@ -1,0 +1,5 @@
+[console_scripts]
+testsentry = testsentry.cli:main
+
+[pytest11]
+testsentry = testsentry.plugin

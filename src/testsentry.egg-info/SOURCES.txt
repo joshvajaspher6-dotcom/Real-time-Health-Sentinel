@@ -1,0 +1,13 @@
+README.md
+pyproject.toml
+setup.cfg
+src/testsentry/__init__.py
+src/testsentry/cli.py
+src/testsentry/collector.py
+src/testsentry/fingerprinter.py
+src/testsentry/plugin.py
+src/testsentry.egg-info/PKG-INFO
+src/testsentry.egg-info/SOURCES.txt
+src/testsentry.egg-info/dependency_links.txt
+src/testsentry.egg-info/entry_points.txt
+src/testsentry.egg-info/top_level.txt
