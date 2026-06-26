@@ -1,22 +1,27 @@
 import pytest
+import uuid
+from testsentry.collector import init_db, store_result
+
+# Generate a unique ID for this test run
+RUN_ID = str(uuid.uuid4())[:8]
 
 
 def pytest_configure(config):
-    """TestSentry plugin loaded successfully."""
-    pass
+    """Initialize database when pytest starts."""
+    init_db()
+    print(f"\n[TestSentry] Run ID: {RUN_ID}")
 
 
 @pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
     """
     Fires the moment each test finishes.
-    Captures test name, status, duration, and error message.
+    Captures and stores result in DuckDB.
     """
-    outcome = yield  # let pytest run the test first
+    outcome = yield
 
     report = outcome.get_result()
 
-    # Only capture the actual test call, not setup/teardown
     if report.when == "call":
         result = {
             "test_name": item.nodeid,
@@ -25,5 +30,7 @@ def pytest_runtest_makereport(item, call):
             "error_msg": str(report.longrepr) if report.failed else None,
         }
 
-        
-        print(f"\n[TestSentry] {result['status']} — {result['test_name']} ({result['duration']}s)")
+        # Save to DuckDB permanently
+        store_result(result, RUN_ID)
+
+        print(f"\n[TestSentry] {result['status']} — {result['test_name']} ({result['duration']}s) → saved to DB")

@@ -1,0 +1,11 @@
+duckdb==1.5.4
+iniconfig==2.3.0
+numpy==2.5.0
+packaging==26.2
+pandas==3.0.3
+pluggy==1.6.0
+Pygments==2.20.0
+pytest==9.1.1
+python-dateutil==2.9.0.post0
+six==1.17.0
+-e git+https://github.com/joshvajaspher6-dotcom/Real-time-Health-Sentinel.git@a1a40465df3ee0719ff76c659b2d478b98898d4a#egg=testsentry
