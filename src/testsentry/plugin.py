@@ -1,8 +1,9 @@
 import pytest
 import uuid
 from testsentry.collector import init_db, store_result
+from testsentry.ai_triage import triage_failure
 
-# Generate a unique ID for this test run
+
 RUN_ID = str(uuid.uuid4())[:8]
 
 
@@ -30,7 +31,11 @@ def pytest_runtest_makereport(item, call):
             "error_msg": str(report.longrepr) if report.failed else None,
         }
 
-        # Save to DuckDB permanently
+        
         store_result(result, RUN_ID)
 
         print(f"\n[TestSentry] {result['status']} — {result['test_name']} ({result['duration']}s) → saved to DB")
+
+        if result["status"] == "FAILED":
+           triage_failure(result)
+            

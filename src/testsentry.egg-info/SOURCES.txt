@@ -11,3 +11,6 @@ src/testsentry.egg-info/SOURCES.txt
 src/testsentry.egg-info/dependency_links.txt
 src/testsentry.egg-info/entry_points.txt
 src/testsentry.egg-info/top_level.txt
+tests/test_cache.py
+tests/test_fingerprinter.py
+tests/test_sample.py
