@@ -1,6 +1,6 @@
 duckdb==1.5.4
 iniconfig==2.3.0
-numpy==2.5.0
+numpy==1.26.4
 packaging==26.2
 pandas==3.0.3
 pluggy==1.6.0
