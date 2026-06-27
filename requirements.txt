@@ -8,4 +8,3 @@ Pygments==2.20.0
 pytest==9.1.1
 python-dateutil==2.9.0.post0
 six==1.17.0
--e git+https://github.com/joshvajaspher6-dotcom/Real-time-Health-Sentinel.git@a1a40465df3ee0719ff76c659b2d478b98898d4a#egg=testsentry
