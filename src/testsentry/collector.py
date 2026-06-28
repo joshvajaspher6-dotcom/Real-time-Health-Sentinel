@@ -54,7 +54,7 @@ def init_db():
     print("[TestSentry] Database initialized at testsentry.db")
 
 
-def store_result(result: dict, run_id: str):
+def store_result(result: dict, run_id: str, label: str = "NEW_TEST"):
     """
     Save a single test result to DuckDB.
     Called after every test finishes.
@@ -62,14 +62,15 @@ def store_result(result: dict, run_id: str):
     conn = get_connection()
     conn.execute("""
         INSERT INTO test_runs
-            (run_id, test_name, status, duration, error_msg, timestamp)
-        VALUES (?, ?, ?, ?, ?, ?)
+            (run_id, test_name, status, duration, error_msg, label, timestamp)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """, [
         run_id,
         result["test_name"],
         result["status"],
         result["duration"],
         result["error_msg"],
+        label,
         datetime.now()
     ])
     conn.close()

@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 import instructor
 from groq import Groq
+from pydantic import field_validator
 
 from testsentry.fingerprinter import fingerprint
 from testsentry.collector import cache_lookup, cache_store
@@ -27,6 +28,12 @@ class TriageResult(BaseModel):
     why_it_failed:   str
     suggested_fix:   str
     affected_module: str
+
+    @field_validator("confidence_pct", mode="before")
+    @classmethod
+    def parse_confidence(cls, v):
+        """Accept both int and string for confidence_pct."""
+        return int(v)
 
 
 def get_client():
@@ -93,7 +100,7 @@ def triage_failure(result: dict) -> dict:
 Test name: {test_name}
 Error message: {error_msg}
 
-Return a structured triage with category, confidence, why it failed, and suggested fix."""
+Return a structured triage with category, confidence as a plain integer (not a string, e.g. 92 not "92"), why it failed, and suggested fix."""
             }
         ]
     )
