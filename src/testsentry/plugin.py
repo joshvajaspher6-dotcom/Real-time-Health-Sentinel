@@ -2,6 +2,7 @@ import pytest
 import uuid
 from testsentry.collector import init_db, store_result
 from testsentry.ai_triage import triage_failure
+from testsentry.health_engine import calculate_health_score
 from testsentry.regression_detector import label_test
 
 
@@ -12,6 +13,23 @@ def pytest_configure(config):
     """Initialize database when pytest starts."""
     init_db()
     print(f"\n[TestSentry] Run ID: {RUN_ID}")
+
+def pytest_sessionfinish(session, exitstatus):
+    """
+    Fires after ALL tests finish.
+    Calculate and display health score for this run.
+    """
+    score = calculate_health_score(RUN_ID)
+    print(f"\n{'='*50}")
+    print(f"[TestSentry] 🏥 HEALTH SCORE: {score['total_score']}/100 (Grade: {score['grade']})")
+    print(f"  Speed:      {score['speed_score']}/20")
+    print(f"  Stability:  {score['stability_score']}/20")
+    print(f"  Flakiness:  {score['flakiness_score']}/20")
+    print(f"  Coverage:   {score['coverage_score']}/20")
+    print(f"  Quality:    {score['quality_score']}/20")
+    print(f"  Pass rate:  {score['pass_rate']}%")
+    print(f"  Flaky tests: {score['flaky_count']}")
+    print(f"{'='*50}")
 
 
 @pytest.hookimpl(hookwrapper=True)
