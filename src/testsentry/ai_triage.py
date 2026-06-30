@@ -81,75 +81,92 @@ def triage_failure(result: dict) -> dict:
         print(f"\n[TestSentry] 💾 CACHE HIT — {test_name}")
         print(f"             Category: {cached['category']}")
 
-        langfuse.start_span(
-            name="triage-cache-hit",
-            input={"test_name": test_name, "fingerprint": fp},
-            output=cached,
-            metadata={"cache_hit": True, "api_cost": 0.0}
-        ).end()
-
+        try:
+            langfuse.trace(
+                name="triage-cache-hit",
+                input={"test_name": test_name, "fingerprint": fp},
+                output=cached,
+                metadata={"cache_hit": True, "api_cost": 0.0}
+        )
+        except:
+            pass
         return cached
 
     
     print(f"\n[TestSentry] 🤖 AI TRIAGE — {test_name}")
 
-    client = get_client()
+    try:
+        client = get_client()
 
-    start_time = time.time()
+        start_time = time.time()
 
-    triage = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        response_model=TriageResult,
-        messages=[
-            {
-                "role": "system",
-                "content": """You are a senior QA engineer analyzing pytest failures.
-                Categorize each failure into exactly one of:
-                - REAL_BUG: actual code defect
-                - FLAKY: non-deterministic, passes sometimes
-                - ENV_ISSUE: environment/infrastructure problem
-                - DATA_ISSUE: test data missing or wrong
-                Always provide a clear explanation and actionable fix."""
-            },
-            {
-                "role": "user",
-                "content": f"""Analyze this pytest failure:
+        triage = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            response_model=TriageResult,
+            messages=[
+                {
+                    "role": "system",
+                    "content": """You are a senior QA engineer analyzing pytest failures.
+                    Categorize each failure into exactly one of:
+                    - REAL_BUG: actual code defect
+                    - FLAKY: non-deterministic, passes sometimes
+                    - ENV_ISSUE: environment/infrastructure problem
+                    - DATA_ISSUE: test data missing or wrong
+                    Always provide a clear explanation and actionable fix."""
+                },
+                {
+                    "role": "user",
+                    "content": f"""Analyze this pytest failure:
 
 Test name: {test_name}
 Error message: {error_msg}
 
 Return a structured triage with category, confidence as a plain integer (not a string, e.g. 92 not "92"), why it failed, and suggested fix."""
-            }
-        ]
-    )
+                }
+            ]
+        )
 
-    latency_ms = round((time.time() - start_time) * 1000, 2)
-    
-    triage_dict = {
-        "category":        triage.category.value,
-        "confidence_pct":  triage.confidence_pct,
-        "why_it_failed":   triage.why_it_failed,
-        "suggested_fix":   triage.suggested_fix,
-        "affected_module": triage.affected_module,
-        "cache_hit":       False
-    }
-    cache_store(fp, triage_dict)
+        latency_ms = round((time.time() - start_time) * 1000, 2)
 
-    langfuse.start_span(
-        name="triage-api-call",
-        input={"test_name": test_name, "error_msg": error_msg[:200]},
-        output=triage_dict,
-        metadata={
-            "cache_hit":   False,
-            "latency_ms":  latency_ms,
-            "model":       "llama-3.3-70b-versatile"
+        # Safely handle category - works for both Enum and string
+        try:
+            category_value = triage.category.value if isinstance(triage.category, Enum) else str(triage.category)
+        except:
+            category_value = str(triage.category)
+
+        triage_dict = {
+            "category":        category_value,
+            "confidence_pct":  int(triage.confidence_pct),
+            "why_it_failed":   triage.why_it_failed,
+            "suggested_fix":   triage.suggested_fix,
+            "affected_module": triage.affected_module,
+            "cache_hit":       False
         }
-    ).end()
+        cache_store(fp, triage_dict)
 
+        try:
+            langfuse.trace(
+                name="triage-api-call",
+                input={"test_name": test_name, "error_msg": error_msg[:200]},
+                output=triage_dict,
+                metadata={
+                    "cache_hit":   False,
+                    "latency_ms":  latency_ms,
+                    "model":       "llama-3.3-70b-versatile"
+                }
+            )
+        except:
+            pass
+
+        
+        print(f"             Category:   {triage_dict['category']}")
+        print(f"             Confidence: {triage_dict['confidence_pct']}%")
+        print(f"             Why:        {triage_dict['why_it_failed']}")
+        print(f"             Fix:        {triage_dict['suggested_fix']}")
+
+        return triage_dict
     
-    print(f"             Category:   {triage_dict['category']}")
-    print(f"             Confidence: {triage_dict['confidence_pct']}%")
-    print(f"             Why:        {triage_dict['why_it_failed']}")
-    print(f"             Fix:        {triage_dict['suggested_fix']}")
-
-    return triage_dict
+    except Exception as e:
+        print(f"\n[TestSentry] ⚠️ Triage error: {type(e).__name__}: {str(e)}")
+        print(f"             Skipping AI analysis for this failure")
+        return None
