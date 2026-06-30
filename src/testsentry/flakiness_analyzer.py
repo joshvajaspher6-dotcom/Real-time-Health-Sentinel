@@ -22,7 +22,6 @@ def calculate_flakiness_per_test(test_name: str, window: int = 30) -> dict:
     """
     conn = get_connection()
     
-    # Get last N runs for this test
     rows = conn.execute("""
         SELECT status, timestamp
         FROM test_runs
@@ -51,10 +50,8 @@ def calculate_flakiness_per_test(test_name: str, window: int = 30) -> dict:
     passed = sum(1 for s in statuses if s == 'PASSED')
     failed = sum(1 for s in statuses if s == 'FAILED')
     
-    # Calculate flakiness percentage
     flakiness_pct = (failed / total_runs * 100) if total_runs > 0 else 0.0
     
-    # Determine flakiness rating
     if flakiness_pct == 0:
         flakiness_rating = 'STABLE'
     elif flakiness_pct < 10:
@@ -66,15 +63,18 @@ def calculate_flakiness_per_test(test_name: str, window: int = 30) -> dict:
     else:
         flakiness_rating = 'CRITICAL'
     
-    # Count status changes (transitions)
+    
     status_changes = 0
     for i in range(len(statuses) - 1):
         if statuses[i] != statuses[i + 1]:
             status_changes += 1
     
-    is_flaky = status_changes > 0
+    if flakiness_pct == 0 or flakiness_pct == 100:
+        is_flaky = False
+    else:
+        is_flaky = status_changes > 0
+
     
-    # Determine trend (improving or worsening)
     trend = 'STABLE'
     if total_runs >= 10:
         first_half = statuses[:total_runs // 2]
@@ -147,7 +147,6 @@ def detect_time_patterns(test_name: str, window: int = 30) -> dict:
             day_stats[day_name]['fail'] += 1
             hour_stats[hour]['fail'] += 1
     
-    # Calculate percentages
     day_patterns = {}
     for day, stats in day_stats.items():
         day_patterns[day] = round(stats['fail'] / stats['total'] * 100, 1) if stats['total'] > 0 else 0
@@ -156,7 +155,6 @@ def detect_time_patterns(test_name: str, window: int = 30) -> dict:
     for hour, stats in hour_stats.items():
         hour_patterns[hour] = round(stats['fail'] / stats['total'] * 100, 1) if stats['total'] > 0 else 0
     
-    # Find worst time
     worst_time = None
     worst_rate = 0
     if day_patterns:

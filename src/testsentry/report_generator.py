@@ -42,7 +42,13 @@ def generate_report(run_id: str, output_path: str = "report.html"):
     """
     health = calculate_health_score(run_id)
     regression = get_regression_summary(run_id)
-    at_risk = get_at_risk_modules(".")
+    
+    try:
+        at_risk = get_at_risk_modules(".") or []
+    except Exception as e:
+        print(f"[TestSentry] ⚠️  Could not fetch at-risk modules: {e}")
+        at_risk = []
+
     ai_stats = get_ai_stats(run_id)
 
     
