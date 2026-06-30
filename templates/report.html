@@ -206,26 +206,56 @@
             color: #383d41;
         }
         
-        .status-badge {
-            padding: 6px 14px;
-            border-radius: 20px;
+        .ownership-item {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
+            border-left: 4px solid #667eea;
+        }
+        
+        .ownership-item:last-child {
+            border-bottom: none;
+        }
+        
+        .ownership-module {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .ownership-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            font-size: 0.9em;
+        }
+        
+        .ownership-detail {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .ownership-detail-label {
+            color: #666;
+            font-size: 0.8em;
+            margin-bottom: 3px;
+            text-transform: uppercase;
+        }
+        
+        .ownership-detail-value {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .owner-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
             font-size: 0.85em;
-            font-weight: bold;
-        }
-        
-        .status-badge.healthy {
-            background: #d4edda;
-            color: #155724;
-        }
-        
-        .status-badge.at-risk {
-            background: #fff3cd;
-            color: #856404;
-        }
-        
-        .status-badge.critical {
-            background: #f8d7da;
-            color: #721c24;
+            margin-right: 8px;
         }
         
         .ai-stats {
@@ -386,6 +416,50 @@
                         <h3>✓ Stable</h3>
                         <div class="value">{{ regression.STABLE }}</div>
                     </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Git Ownership Section -->
+            {% if at_risk %}
+            <div class="section">
+                <h2>👥 Git Ownership & At-Risk Modules</h2>
+                <div class="ownership-list">
+                    {% for module in at_risk %}
+                    <div class="ownership-item">
+                        <div class="ownership-module">📁 {{ module.filepath }}</div>
+                        <div class="ownership-details">
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Owner</div>
+                                <div class="ownership-detail-value">
+                                    {% if module.owner and module.owner != 'unowned' %}
+                                        <span class="owner-badge">{{ module.owner.split('@')[0] if '@' in module.owner else module.owner }}</span>
+                                    {% else %}
+                                        <span style="color: #999;">Unassigned</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Risk Level</div>
+                                <div class="ownership-detail-value">
+                                    <span class="rating {% if module.risk_level == 'HIGH' %}high{% elif module.risk_level == 'MEDIUM' %}medium{% else %}low{% endif %}">{{ module.risk_level }}</span>
+                                </div>
+                            </div>
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Recent Changes</div>
+                                <div class="ownership-detail-value">{{ module.change_count }}</div>
+                            </div>
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Failing Tests</div>
+                                <div class="ownership-detail-value">{{ module.failure_count }}</div>
+                            </div>
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Risk Score</div>
+                                <div class="ownership-detail-value">{{ module.risk_score }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
             {% endif %}
