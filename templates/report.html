@@ -2,215 +2,412 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TestSentry Health Report</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
-            background: #0f1117;
-            color: #e4e4e7;
-            padding: 40px 20px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-        .container { max-width: 900px; margin: 0 auto; }
-        h1 { font-size: 28px; margin-bottom: 8px; }
-        .subtitle { color: #9ca3af; margin-bottom: 32px; }
-
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
         .score-card {
-            background: #1a1d27;
-            border-radius: 16px;
-            padding: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
             text-align: center;
-            margin-bottom: 24px;
-            border: 1px solid #2a2d3a;
         }
-        .score-big {
-            font-size: 64px;
-            font-weight: 700;
+        
+        .score-card .score {
+            font-size: 3.5em;
+            font-weight: bold;
+            margin: 20px 0;
         }
-        .grade-A { color: #22c55e; }
-        .grade-B { color: #3b82f6; }
-        .grade-C { color: #eab308; }
-        .grade-D { color: #f97316; }
-        .grade-F { color: #ef4444; }
-
-        .dimensions {
+        
+        .score-card .grade {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .score-card .label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .metrics-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
-            margin-top: 24px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
         }
-        .dim-box {
-            background: #0f1117;
-            border-radius: 10px;
-            padding: 16px 8px;
+        
+        .metric-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
         }
-        .dim-label { font-size: 12px; color: #9ca3af; }
-        .dim-score { font-size: 20px; font-weight: 600; margin-top: 4px; }
-
+        
+        .metric-box h3 {
+            color: #333;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            opacity: 0.7;
+        }
+        
+        .metric-box .value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .metric-box .subtext {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
         .section {
-            background: #1a1d27;
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 24px;
-            border: 1px solid #2a2d3a;
+            margin-bottom: 40px;
         }
+        
         .section h2 {
-            font-size: 18px;
-            margin-bottom: 16px;
+            font-size: 1.8em;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .flakiness-summary {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin-bottom: 20px;
+        }
+        
+        .flakiness-summary h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .flakiness-summary p {
+            color: #856404;
+            line-height: 1.6;
+        }
+        
+        .flaky-test-list {
+            background: #f8f9fa;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .flaky-test-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #ddd;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
         }
-
-        .regression-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px;
+        
+        .flaky-test-item:last-child {
+            border-bottom: none;
         }
-        .reg-box {
-            text-align: center;
-            padding: 16px;
-            border-radius: 10px;
+        
+        .flaky-test-name {
+            flex: 1;
+            font-weight: 500;
+            color: #333;
         }
-        .reg-failing { background: #2d1517; color: #f87171; }
-        .reg-fixed { background: #14241b; color: #4ade80; }
-        .reg-stable { background: #1a1d27; color: #9ca3af; border: 1px solid #2a2d3a; }
-        .reg-new { background: #1a1f2e; color: #60a5fa; }
-        .reg-count { font-size: 28px; font-weight: 700; }
-        .reg-label { font-size: 12px; margin-top: 4px; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            text-align: left;
-            padding: 10px 12px;
-            border-bottom: 1px solid #2a2d3a;
-            font-size: 14px;
-        }
-        th { color: #9ca3af; font-weight: 500; }
-        .risk-high { color: #f87171; font-weight: 600; }
-        .risk-med { color: #eab308; }
-        .risk-low { color: #4ade80; }
-
-        .ai-summary {
+        
+        .flaky-test-metrics {
             display: flex;
-            justify-content: space-around;
-            text-align: center;
+            gap: 20px;
+            font-size: 0.9em;
         }
-        .ai-stat-num { font-size: 24px; font-weight: 700; }
-        .ai-stat-label { font-size: 12px; color: #9ca3af; }
-
+        
+        .rating {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        
+        .rating.stable {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .rating.low {
+            background: #cce5ff;
+            color: #004085;
+        }
+        
+        .rating.medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .rating.high {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .rating.critical {
+            background: #d32f2f;
+            color: white;
+        }
+        
+        .rating.unknown {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+        
+        .status-badge.healthy {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-badge.at-risk {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-badge.critical {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .ai-stats {
+            background: #e7f3ff;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .ai-stats p {
+            color: #004085;
+            margin: 8px 0;
+        }
+        
         .footer {
+            background: #f8f9fa;
+            padding: 20px 40px;
             text-align: center;
-            color: #6b7280;
-            font-size: 12px;
-            margin-top: 32px;
+            color: #666;
+            font-size: 0.9em;
+            border-top: 1px solid #ddd;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        
+        .progress-bar {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🛡️ TestSentry Health Report</h1>
-        <p class="subtitle">Run ID: {{ run_id }} • Generated {{ generated_at }}</p>
-
-        <!-- Health Score -->
-        <div class="score-card">
-            <div class="score-big grade-{{ health.grade }}">{{ health.total_score }}/100</div>
-            <div style="color:#9ca3af; margin-top:4px;">Grade {{ health.grade }} • Pass rate {{ health.pass_rate }}%</div>
-            <div class="dimensions">
-                <div class="dim-box">
-                    <div class="dim-label">SPEED</div>
-                    <div class="dim-score">{{ health.speed_score }}/20</div>
+        <!-- Header -->
+        <div class="header">
+            <h1>🏥 TestSentry Health Report</h1>
+            <p>Run ID: {{ run_id }} | Generated: {{ generated_at }}</p>
+        </div>
+        
+        <!-- Main Score Card -->
+        <div class="content">
+            <div class="score-card">
+                <div class="label">Overall Health Score</div>
+                <div class="score">{{ health.total_score }}/100</div>
+                <div class="grade">Grade: {{ health.grade }}</div>
+            </div>
+            
+            <!-- Dimension Scores -->
+            <div class="metrics-grid">
+                <div class="metric-box">
+                    <h3>⚡ Speed</h3>
+                    <div class="value">{{ health.speed_score }}/20</div>
+                    <div class="subtext">Avg: {{ health.avg_duration }}s</div>
                 </div>
-                <div class="dim-box">
-                    <div class="dim-label">STABILITY</div>
-                    <div class="dim-score">{{ health.stability_score }}/20</div>
+                <div class="metric-box">
+                    <h3>📊 Stability</h3>
+                    <div class="value">{{ health.stability_score }}/20</div>
+                    <div class="subtext">Pass Rate: {{ health.pass_rate }}%</div>
                 </div>
-                <div class="dim-box">
-                    <div class="dim-label">FLAKINESS</div>
-                    <div class="dim-score">{{ health.flakiness_score }}/20</div>
+                <div class="metric-box">
+                    <h3>🎲 Flakiness</h3>
+                    <div class="value">{{ health.flakiness_score }}/20</div>
+                    <div class="subtext">{{ health.flaky_count }} flaky tests</div>
                 </div>
-                <div class="dim-box">
-                    <div class="dim-label">COVERAGE</div>
-                    <div class="dim-score">{{ health.coverage_score }}/20</div>
+                <div class="metric-box">
+                    <h3>📚 Coverage</h3>
+                    <div class="value">{{ health.coverage_score }}/20</div>
+                    <div class="subtext">Test distribution</div>
                 </div>
-                <div class="dim-box">
-                    <div class="dim-label">QUALITY</div>
-                    <div class="dim-score">{{ health.quality_score }}/20</div>
+                <div class="metric-box">
+                    <h3>✨ Quality</h3>
+                    <div class="value">{{ health.quality_score }}/20</div>
+                    <div class="subtext">Meaningful failures</div>
                 </div>
             </div>
-        </div>
-
-        <!-- Regression Summary -->
-        <div class="section">
-            <h2>📊 Regression Summary</h2>
-            <div class="regression-grid">
-                <div class="reg-box reg-failing">
-                    <div class="reg-count">{{ regression.NEWLY_FAILING }}</div>
-                    <div class="reg-label">NEWLY FAILING</div>
+            
+            <!-- Flakiness Details Section -->
+            <div class="section">
+                <h2>🔍 Flakiness Analysis</h2>
+                
+                {% if health.flakiness_summary %}
+                <div class="flakiness-summary">
+                    <h3>⚠️ Flakiness Overview</h3>
+                    <p>
+                        <strong>Total Flaky Tests:</strong> {{ health.flakiness_summary.total_flaky_tests }}
+                        {% if health.flakiness_summary.critical_flaky > 0 %}
+                            <span class="rating critical">{{ health.flakiness_summary.critical_flaky }} CRITICAL</span>
+                        {% endif %}
+                        {% if health.flakiness_summary.high_flaky > 0 %}
+                            <span class="rating high">{{ health.flakiness_summary.high_flaky }} HIGH</span>
+                        {% endif %}
+                        {% if health.flakiness_summary.medium_flaky > 0 %}
+                            <span class="rating medium">{{ health.flakiness_summary.medium_flaky }} MEDIUM</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Average Flakiness:</strong> {{ health.flakiness_summary.avg_flakiness }}%</p>
+                    {% if health.flakiness_summary.worst_test %}
+                    <p><strong>Worst Offender:</strong> {{ health.flakiness_summary.worst_test }} ({{ health.flakiness_summary.worst_rate }}% failure rate)</p>
+                    {% endif %}
                 </div>
-                <div class="reg-box reg-fixed">
-                    <div class="reg-count">{{ regression.FIXED }}</div>
-                    <div class="reg-label">FIXED</div>
+                {% endif %}
+                
+                <!-- Flaky Tests List -->
+                {% if health.flaky_tests_details %}
+                <div class="flaky-test-list">
+                    {% for test in health.flaky_tests_details %}
+                    <div class="flaky-test-item">
+                        <div class="flaky-test-name">📌 {{ test.test_name }}</div>
+                        <div class="flaky-test-metrics">
+                            <div>{{ test.passed }}/{{ test.total_runs }} passed</div>
+                            <div>
+                                <span class="rating {{ test.flakiness_rating|lower }}">{{ test.flakiness_pct }}%</span>
+                            </div>
+                            <div>{{ test.status_changes }} transitions</div>
+                            <div>{{ test.trend }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
-                <div class="reg-box reg-stable">
-                    <div class="reg-count">{{ regression.STABLE }}</div>
-                    <div class="reg-label">STABLE</div>
+                {% else %}
+                <div class="no-data">
+                    <p>✅ No flaky tests detected</p>
                 </div>
-                <div class="reg-box reg-new">
-                    <div class="reg-count">{{ regression.NEW_TEST }}</div>
-                    <div class="reg-label">NEW TESTS</div>
+                {% endif %}
+            </div>
+            
+            <!-- Regression Summary -->
+            {% if regression %}
+            <div class="section">
+                <h2>📈 Regression Summary</h2>
+                <div class="metrics-grid">
+                    <div class="metric-box">
+                        <h3>🔴 Newly Failing</h3>
+                        <div class="value">{{ regression.NEWLY_FAILING }}</div>
+                    </div>
+                    <div class="metric-box">
+                        <h3>✅ Fixed</h3>
+                        <div class="value">{{ regression.FIXED }}</div>
+                    </div>
+                    <div class="metric-box">
+                        <h3>⚠️ Still Failing</h3>
+                        <div class="value">{{ regression.STILL_FAILING }}</div>
+                    </div>
+                    <div class="metric-box">
+                        <h3>✓ Stable</h3>
+                        <div class="value">{{ regression.STABLE }}</div>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Who Needs to Act -->
-        <div class="section">
-            <h2>⚠️ Who Needs to Act</h2>
-            <table>
-                <tr>
-                    <th>File</th>
-                    <th>Owner</th>
-                    <th>Changes</th>
-                    <th>Failures</th>
-                    <th>Risk</th>
-                </tr>
-                {% for item in at_risk %}
-                <tr>
-                    <td>{{ item.filepath }}</td>
-                    <td>{{ item.owner }}</td>
-                    <td>{{ item.change_count }}</td>
-                    <td>{{ item.failure_count }}</td>
-                    <td class="{% if item.risk_level == 'HIGH' %}risk-high{% elif item.risk_level == 'MEDIUM' %}risk-med{% else %}risk-low{% endif %}">
-                        {{ item.risk_level }} ({{ item.risk_score }})
-                    </td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-
-        <!-- AI Cost Summary -->
-        <div class="section">
-            <h2>🤖 AI Cost Summary</h2>
-            <div class="ai-summary">
-                <div>
-                    <div class="ai-stat-num">{{ ai_stats.total_failures }}</div>
-                    <div class="ai-stat-label">FAILURES</div>
-                </div>
-                <div>
-                    <div class="ai-stat-num">{{ ai_stats.api_calls }}</div>
-                    <div class="ai-stat-label">API CALLS</div>
-                </div>
-                <div>
-                    <div class="ai-stat-num">{{ ai_stats.cache_hits }}</div>
-                    <div class="ai-stat-label">CACHE HITS</div>
+            {% endif %}
+            
+            <!-- AI Triage Stats -->
+            {% if ai_stats %}
+            <div class="section">
+                <h2>🤖 AI Triage Stats</h2>
+                <div class="ai-stats">
+                    <p><strong>Total Failures Analyzed:</strong> {{ ai_stats.total_failures }}</p>
+                    <p><strong>Cache Hits:</strong> {{ ai_stats.cache_hits }} (reused results)</p>
+                    <p><strong>API Calls:</strong> {{ ai_stats.api_calls }} (fresh analyses)</p>
+                    <p><strong>Cache Efficiency:</strong> {% if ai_stats.api_calls > 0 %}{{ ((ai_stats.cache_hits / (ai_stats.cache_hits + ai_stats.api_calls)) * 100)|int }}%{% else %}0%{% endif %}</p>
                 </div>
             </div>
+            {% endif %}
         </div>
-
-        <p class="footer">Generated by TestSentry v2.1 — Intelligent Test Suite Health Monitor</p>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p>TestSentry v1.0 | Real-time Test Health Monitoring</p>
+        </div>
     </div>
 </body>
 </html>

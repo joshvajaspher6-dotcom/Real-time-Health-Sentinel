@@ -1,4 +1,5 @@
 from testsentry.collector import get_connection
+from testsentry.flakiness_analyzer import get_all_flaky_tests, get_flakiness_summary
 
 
 def calculate_health_score(run_id: str) -> dict:
@@ -134,6 +135,10 @@ def calculate_health_score(run_id: str) -> dict:
         quality_score = 0
 
     conn.close()
+    
+    # Get detailed flakiness metrics
+    flakiness_summary = get_flakiness_summary(run_id)
+    flaky_tests_list = get_all_flaky_tests(run_id)
 
     # ── Total Score ───────────────────────────────────────────
     total_score = (
@@ -145,17 +150,19 @@ def calculate_health_score(run_id: str) -> dict:
     )
 
     return {
-        "run_id":           run_id,
-        "total_score":      total_score,
-        "speed_score":      speed_score,
-        "stability_score":  stability_score,
-        "flakiness_score":  flakiness_score,
-        "coverage_score":   coverage_score,
-        "quality_score":    quality_score,
-        "pass_rate":        round(pass_rate, 1),
-        "avg_duration":     round(avg_duration, 4),
-        "flaky_count":      flaky_count,
-        "grade":            get_grade(total_score)
+        "run_id":                run_id,
+        "total_score":           total_score,
+        "speed_score":           speed_score,
+        "stability_score":       stability_score,
+        "flakiness_score":       flakiness_score,
+        "coverage_score":        coverage_score,
+        "quality_score":         quality_score,
+        "pass_rate":             round(pass_rate, 1),
+        "avg_duration":          round(avg_duration, 4),
+        "flaky_count":           flaky_count,
+        "grade":                 get_grade(total_score),
+        "flakiness_summary":     flakiness_summary,
+        "flaky_tests_details":   flaky_tests_list[:10]  # Top 10 flakiest
     }
 
 
