@@ -9,7 +9,8 @@ from pydantic import field_validator
 
 from testsentry.fingerprinter import fingerprint
 from testsentry.collector import cache_lookup, cache_store
-
+from langfuse import Langfuse
+import time
 
 load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
@@ -43,6 +44,13 @@ def get_client():
 
 
 
+
+langfuse = Langfuse(
+    public_key=os.getenv("LANGFUSE_PUBLIC_KEY"),
+    secret_key=os.getenv("LANGFUSE_SECRET_KEY"),
+    host=os.getenv("LANGFUSE_HOST", "https://cloud.langfuse.com")
+)
+
 def triage_failure(result: dict) -> dict:
     """
     Main entry point. Called from plugin.py on every failure.
@@ -72,12 +80,22 @@ def triage_failure(result: dict) -> dict:
     if cached:
         print(f"\n[TestSentry] 💾 CACHE HIT — {test_name}")
         print(f"             Category: {cached['category']}")
+
+        langfuse.start_span(
+            name="triage-cache-hit",
+            input={"test_name": test_name, "fingerprint": fp},
+            output=cached,
+            metadata={"cache_hit": True, "api_cost": 0.0}
+        ).end()
+
         return cached
 
     
     print(f"\n[TestSentry] 🤖 AI TRIAGE — {test_name}")
 
     client = get_client()
+
+    start_time = time.time()
 
     triage = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
@@ -105,6 +123,7 @@ Return a structured triage with category, confidence as a plain integer (not a s
         ]
     )
 
+    latency_ms = round((time.time() - start_time) * 1000, 2)
     
     triage_dict = {
         "category":        triage.category.value,
@@ -115,6 +134,17 @@ Return a structured triage with category, confidence as a plain integer (not a s
         "cache_hit":       False
     }
     cache_store(fp, triage_dict)
+
+    langfuse.start_span(
+        name="triage-api-call",
+        input={"test_name": test_name, "error_msg": error_msg[:200]},
+        output=triage_dict,
+        metadata={
+            "cache_hit":   False,
+            "latency_ms":  latency_ms,
+            "model":       "llama-3.3-70b-versatile"
+        }
+    ).end()
 
     
     print(f"             Category:   {triage_dict['category']}")

@@ -87,7 +87,7 @@ def calculate_health_score(run_id: str) -> dict:
         flakiness_score = 0
 
   
-    # Ratio of newly_failing vs stable tests:
+    
     
     coverage_row = conn.execute("""
         SELECT

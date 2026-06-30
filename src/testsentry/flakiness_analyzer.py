@@ -226,16 +226,16 @@ def detect_error_patterns(test_name: str, window: int = 30) -> dict:
         
         error_lower = error_msg.lower()
         
-        # Extract error type
+        
         error_parts = error_msg.split(':')[0].strip().split()[-1]
         error_types[error_parts] += 1
         
-        # Check for patterns
+       
         for cause, keywords in error_keywords.items():
             if any(kw in error_lower for kw in keywords):
                 cause_counts[cause] += 1
     
-    # Convert to readable format
+    
     likely_causes = {
         'race_condition': 'Race Condition',
         'timeout': 'Timeout',
@@ -267,7 +267,7 @@ def get_all_flaky_tests(run_id: str = None) -> list:
     """
     conn = get_connection()
     
-    # Get unique test names
+   
     if run_id:
         tests = conn.execute("""
             SELECT DISTINCT test_name
@@ -290,7 +290,7 @@ def get_all_flaky_tests(run_id: str = None) -> list:
         if metrics['is_flaky'] or metrics['flakiness_pct'] > 0:
             flaky_list.append(metrics)
     
-    # Sort by flakiness percentage (highest first)
+    
     flaky_list.sort(key=lambda x: x['flakiness_pct'], reverse=True)
     
     return flaky_list
