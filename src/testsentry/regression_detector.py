@@ -30,9 +30,8 @@ def label_test(result: dict, run_id: str) -> str:
 
     conn.close()
 
-    
     if not prev:
-        return "NEW_TEST"
+        return "NEWLY_FAILING" if current_status == "FAILED" else "NEW_TEST"
 
     prev_status = prev[0]
 
@@ -65,7 +64,7 @@ def get_regression_summary(run_id: str) -> dict:
 
     conn.close()
 
-    # Build summary dict
+   
     summary = {
         "NEWLY_FAILING": 0,
         "FIXED":         0,

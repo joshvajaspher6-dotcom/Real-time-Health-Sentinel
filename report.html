@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TestSentry Health Report</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #0f1117;
+            color: #e4e4e7;
+            padding: 40px 20px;
+        }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 28px; margin-bottom: 8px; }
+        .subtitle { color: #9ca3af; margin-bottom: 32px; }
+
+        .score-card {
+            background: #1a1d27;
+            border-radius: 16px;
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 24px;
+            border: 1px solid #2a2d3a;
+        }
+        .score-big {
+            font-size: 64px;
+            font-weight: 700;
+        }
+        .grade-A { color: #22c55e; }
+        .grade-B { color: #3b82f6; }
+        .grade-C { color: #eab308; }
+        .grade-D { color: #f97316; }
+        .grade-F { color: #ef4444; }
+
+        .dimensions {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .dim-box {
+            background: #0f1117;
+            border-radius: 10px;
+            padding: 16px 8px;
+        }
+        .dim-label { font-size: 12px; color: #9ca3af; }
+        .dim-score { font-size: 20px; font-weight: 600; margin-top: 4px; }
+
+        .section {
+            background: #1a1d27;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #2a2d3a;
+        }
+        .section h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .regression-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .reg-box {
+            text-align: center;
+            padding: 16px;
+            border-radius: 10px;
+        }
+        .reg-failing { background: #2d1517; color: #f87171; }
+        .reg-fixed { background: #14241b; color: #4ade80; }
+        .reg-stable { background: #1a1d27; color: #9ca3af; border: 1px solid #2a2d3a; }
+        .reg-new { background: #1a1f2e; color: #60a5fa; }
+        .reg-count { font-size: 28px; font-weight: 700; }
+        .reg-label { font-size: 12px; margin-top: 4px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid #2a2d3a;
+            font-size: 14px;
+        }
+        th { color: #9ca3af; font-weight: 500; }
+        .risk-high { color: #f87171; font-weight: 600; }
+        .risk-med { color: #eab308; }
+        .risk-low { color: #4ade80; }
+
+        .ai-summary {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        .ai-stat-num { font-size: 24px; font-weight: 700; }
+        .ai-stat-label { font-size: 12px; color: #9ca3af; }
+
+        .footer {
+            text-align: center;
+            color: #6b7280;
+            font-size: 12px;
+            margin-top: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ TestSentry Health Report</h1>
+        <p class="subtitle">Run ID: 87276590 • Generated 2026-06-30 11:58:59</p>
+
+        <!-- Health Score -->
+        <div class="score-card">
+            <div class="score-big grade-B">75/100</div>
+            <div style="color:#9ca3af; margin-top:4px;">Grade B • Pass rate 96.3%</div>
+            <div class="dimensions">
+                <div class="dim-box">
+                    <div class="dim-label">SPEED</div>
+                    <div class="dim-score">20/20</div>
+                </div>
+                <div class="dim-box">
+                    <div class="dim-label">STABILITY</div>
+                    <div class="dim-score">20/20</div>
+                </div>
+                <div class="dim-box">
+                    <div class="dim-label">FLAKINESS</div>
+                    <div class="dim-score">20/20</div>
+                </div>
+                <div class="dim-box">
+                    <div class="dim-label">COVERAGE</div>
+                    <div class="dim-score">0/20</div>
+                </div>
+                <div class="dim-box">
+                    <div class="dim-label">QUALITY</div>
+                    <div class="dim-score">15/20</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Regression Summary -->
+        <div class="section">
+            <h2>📊 Regression Summary</h2>
+            <div class="regression-grid">
+                <div class="reg-box reg-failing">
+                    <div class="reg-count">1</div>
+                    <div class="reg-label">NEWLY FAILING</div>
+                </div>
+                <div class="reg-box reg-fixed">
+                    <div class="reg-count">0</div>
+                    <div class="reg-label">FIXED</div>
+                </div>
+                <div class="reg-box reg-stable">
+                    <div class="reg-count">0</div>
+                    <div class="reg-label">STABLE</div>
+                </div>
+                <div class="reg-box reg-new">
+                    <div class="reg-count">26</div>
+                    <div class="reg-label">NEW TESTS</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Who Needs to Act -->
+        <div class="section">
+            <h2>⚠️ Who Needs to Act</h2>
+            <table>
+                <tr>
+                    <th>File</th>
+                    <th>Owner</th>
+                    <th>Changes</th>
+                    <th>Failures</th>
+                    <th>Risk</th>
+                </tr>
+                
+                <tr>
+                    <td>tests/test_sample.py</td>
+                    <td>joshvajaspher6@gmail.com</td>
+                    <td>1</td>
+                    <td>1</td>
+                    <td class="risk-med">
+                        MEDIUM (12)
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>tests/test_reg.py</td>
+                    <td>unowned</td>
+                    <td>0</td>
+                    <td>1</td>
+                    <td class="risk-med">
+                        MEDIUM (10)
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>src/testsentry/plugin.py</td>
+                    <td>joshvajaspher6@gmail.com</td>
+                    <td>6</td>
+                    <td>0</td>
+                    <td class="risk-low">
+                        LOW (6)
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>requirements.txt</td>
+                    <td>joshvajaspher6@gmail.com</td>
+                    <td>6</td>
+                    <td>0</td>
+                    <td class="risk-low">
+                        LOW (6)
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>src/testsentry/collector.py</td>
+                    <td>joshvajaspher6@gmail.com</td>
+                    <td>4</td>
+                    <td>0</td>
+                    <td class="risk-low">
+                        LOW (4)
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>src/testsentry/fingerprinter.py</td>
+                    <td>joshvajaspher6@gmail.com</td>
+                    <td>2</td>
+                    <td>0</td>
+                    <td class="risk-low">
+                        LOW (2)
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>.gitignore</td>
+                    <td>joshvajaspher6@gmail.com</td>
+                    <td>2</td>
+                    <td>0</td>
+                    <td class="risk-low">
+                        LOW (2)
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>.github/workflows/python-package.yml</td>
+                    <td>joshvajaspher6@gmail.com</td>
+                    <td>2</td>
+                    <td>0</td>
+                    <td class="risk-low">
+                        LOW (2)
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>src/testsentry/ai_triage.py</td>
+                    <td>joshvajaspher6@gmail.com</td>
+                    <td>2</td>
+                    <td>0</td>
+                    <td class="risk-low">
+                        LOW (2)
+                    </td>
+                </tr>
+                
+                <tr>
+                    <td>src/testsentry/regression_detector.py</td>
+                    <td>joshvajaspher6@gmail.com</td>
+                    <td>1</td>
+                    <td>0</td>
+                    <td class="risk-low">
+                        LOW (1)
+                    </td>
+                </tr>
+                
+            </table>
+        </div>
+
+        <!-- AI Cost Summary -->
+        <div class="section">
+            <h2>🤖 AI Cost Summary</h2>
+            <div class="ai-summary">
+                <div>
+                    <div class="ai-stat-num">1</div>
+                    <div class="ai-stat-label">FAILURES</div>
+                </div>
+                <div>
+                    <div class="ai-stat-num">4</div>
+                    <div class="ai-stat-label">API CALLS</div>
+                </div>
+                <div>
+                    <div class="ai-stat-num">5</div>
+                    <div class="ai-stat-label">CACHE HITS</div>
+                </div>
+            </div>
+        </div>
+
+        <p class="footer">Generated by TestSentry v2.1 — Intelligent Test Suite Health Monitor</p>
+    </div>
+</body>
+</html>
