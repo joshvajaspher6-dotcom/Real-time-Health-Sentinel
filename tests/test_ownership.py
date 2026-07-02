@@ -40,4 +40,4 @@ def test_at_risk_modules_have_required_keys():
         assert "filepath" in first
         assert "owner" in first
         assert "change_count" in first
-        assert "risk_score" in first
+        assert "risk_score" in first    
