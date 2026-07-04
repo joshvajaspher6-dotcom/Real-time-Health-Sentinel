@@ -81,14 +81,14 @@ def get_recent_runs(limit: int = 10):
     Fetch the most recent test results.
     """
     conn = get_connection()
-    df = conn.execute("""
+    rows = conn.execute("""
         SELECT test_name, status, duration, timestamp
         FROM test_runs
         ORDER BY timestamp DESC
         LIMIT ?
-    """, [limit]).fetchdf()
+    """, [limit]).fetchall()
     conn.close()
-    return df
+    return rows
 
 def cache_lookup(fp: str):
     """

@@ -1,11 +1,10 @@
 import click
-from testsentry.report_generator import generate_report
-from testsentry.collector import get_recent_runs
+from testsentry.collector import get_connection
 
 
 @click.group()
 def cli():
-    """TestSentry — Intelligent Test Suite Health Monitor"""
+    """🛡️ TestSentry — Intelligent Test Suite Health Monitor"""
     pass
 
 
@@ -16,14 +15,6 @@ def scan(output, runs):
     """Generate a TestSentry health report."""
     click.echo("[TestSentry] 🔍 Scanning test history...")
 
-    # Get most recent run ID
-    df = get_recent_runs(1)
-    if df.empty:
-        click.echo("[TestSentry] ⚠️ No test runs found. Run pytest first.")
-        return
-
-    # Get run_id from most recent run
-    from testsentry.collector import get_connection
     conn = get_connection()
     row = conn.execute("""
         SELECT run_id FROM test_runs
@@ -33,24 +24,166 @@ def scan(output, runs):
     conn.close()
 
     if not row:
-        click.echo("[TestSentry] ⚠️ No runs found in database.")
+        click.echo("[TestSentry] ⚠️  No runs found. Run pytest first.")
         return
 
     run_id = row[0]
     click.echo(f"[TestSentry] 📊 Analyzing run: {run_id}")
 
+    from testsentry.report_generator import generate_report
     generate_report(run_id, output)
     click.echo(f"[TestSentry] ✅ Report saved to {output}")
 
 
 @cli.command()
-def status():
-    """Show current test suite status."""
-    df = get_recent_runs(5)
-    if df.empty:
-        click.echo("No test runs found.")
+@click.option('--runs', default=5, help='Number of recent runs to show')
+def status(runs):
+    """Show recent test run results."""
+    conn = get_connection()
+    rows = conn.execute("""
+        SELECT test_name, status, duration, label, timestamp
+        FROM test_runs
+        ORDER BY timestamp DESC
+        LIMIT ?
+    """, [runs]).fetchall()
+    conn.close()
+
+    if not rows:
+        click.echo("[TestSentry] ⚠️  No test runs found. Run pytest first.")
         return
-    click.echo(df.to_string())
+
+    click.echo(f"\n{'Test Name':<55} {'Status':<10} {'Label':<15} {'Duration'}")
+    click.echo("─" * 100)
+    for row in rows:
+        test_name, status, duration, label, timestamp = row
+        # Shorten test name if too long
+        short_name = test_name[-52:] if len(test_name) > 52 else test_name
+        status_icon = "✅" if status == "PASSED" else "❌"
+        click.echo(f"{short_name:<55} {status_icon} {status:<8} {label:<15} {duration:.4f}s")
+
+
+@cli.command()
+def flaky():
+    """Show flaky test leaderboard ranked by flip rate."""
+    from testsentry.flakiness_analyzer import get_all_flaky_tests, get_flakiness_summary
+
+    click.echo("\n🔴 FLAKY TEST LEADERBOARD")
+    click.echo("─" * 70)
+
+    summary = get_flakiness_summary()
+    click.echo(f"Total flaky: {summary['total_flaky_tests']} | "
+               f"Critical: {summary['critical_flaky']} | "
+               f"High: {summary['high_flaky']} | "
+               f"Medium: {summary['medium_flaky']}")
+    click.echo("─" * 70)
+
+    flaky_tests = get_all_flaky_tests()
+
+    if not flaky_tests:
+        click.echo("✅ No flaky tests detected!")
+        return
+
+    click.echo(f"\n{'Test Name':<50} {'Flip%':<8} {'Rating':<10} {'Trend'}")
+    click.echo("─" * 85)
+
+    for test in flaky_tests[:10]:
+        short_name = test['test_name'][-47:] if len(test['test_name']) > 47 else test['test_name']
+        rating = test['flakiness_rating']
+        icon = "🔴" if rating == "CRITICAL" else "🟠" if rating == "HIGH" else "🟡" if rating == "MEDIUM" else "🟢"
+        click.echo(f"{short_name:<50} {test['flakiness_pct']:<8.1f} {icon} {rating:<8} {test['trend']}")
+
+
+@cli.command()
+def history():
+    """Show health score history across recent runs."""
+    from testsentry.health_engine import calculate_health_score
+
+    conn = get_connection()
+    runs = conn.execute("""
+        SELECT DISTINCT run_id, MIN(timestamp) as started
+        FROM test_runs
+        GROUP BY run_id
+        ORDER BY started DESC
+        LIMIT 10
+    """).fetchall()
+    conn.close()
+
+    if not runs:
+        click.echo("[TestSentry] ⚠️  No runs found. Run pytest first.")
+        return
+
+    click.echo(f"\n{'Run ID':<12} {'Score':<10} {'Grade':<8} {'Pass%':<8} {'Flaky':<8} {'Time'}")
+    click.echo("─" * 65)
+
+    for run_id, started in runs:
+        score = calculate_health_score(run_id)
+        grade = score['grade']
+        grade_icon = "🟢" if grade == "A" else "🔵" if grade == "B" else "🟡" if grade == "C" else "🔴"
+        click.echo(
+            f"{run_id:<12} "
+            f"{score['total_score']}/100   "
+            f"{grade_icon} {grade:<6} "
+            f"{score['pass_rate']:<8} "
+            f"{score['flaky_count']:<8} "
+            f"{str(started)[:16]}"
+        )
+
+
+@cli.command()
+def risk():
+    """Show who needs to act — file risk table with owners."""
+    from testsentry.ownership_mapper import get_at_risk_modules
+
+    click.echo("\n⚠️  WHO NEEDS TO ACT")
+    click.echo("─" * 85)
+
+    at_risk = get_at_risk_modules(".")
+
+    if not at_risk:
+        click.echo("✅ No high-risk modules detected!")
+        return
+
+    click.echo(f"\n{'File':<40} {'Owner':<30} {'Changes':<10} {'Failures':<10} {'Risk'}")
+    click.echo("─" * 100)
+
+    for item in at_risk:
+        filepath = item['filepath'][-37:] if len(item['filepath']) > 37 else item['filepath']
+        owner = item['owner'][-27:] if len(item['owner']) > 27 else item['owner']
+        level = item['risk_level']
+        icon = "🔴" if level == "HIGH" else "🟡" if level == "MEDIUM" else "🟢"
+        click.echo(
+            f"{filepath:<40} "
+            f"{owner:<30} "
+            f"{item['change_count']:<10} "
+            f"{item['failure_count']:<10} "
+            f"{icon} {level}"
+        )
+
+
+@cli.command()
+def clear():
+    """Clear the TestSentry database and start fresh."""
+    import os
+    db_path = os.path.join(os.getcwd(), "testsentry.db")
+
+    if not os.path.exists(db_path):
+        click.echo("[TestSentry] No database found.")
+        return
+
+    confirm = click.confirm("⚠️  This will delete all test history. Are you sure?")
+    if confirm:
+        os.remove(db_path)
+        click.echo("[TestSentry] ✅ Database cleared. Run pytest to start fresh.")
+    else:
+        click.echo("[TestSentry] Cancelled.")
+
+
+@cli.command()
+def version():
+    """Show TestSentry version."""
+    click.echo("TestSentry v2.1.0")
+    click.echo("Intelligent Test Suite Health Monitor")
+    click.echo("Built at Sri Shakthi Institute of Engineering and Technology")
 
 
 def main():
