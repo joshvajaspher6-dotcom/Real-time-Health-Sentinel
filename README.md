@@ -244,10 +244,7 @@ testsentry/
 
 ---
 
-## 👥 Team
-
-Built at **Sri Shakthi Institute of Engineering and Technology**, Coimbatore
-B.E. Computer Science and Engineering — Final Year Project, 2026
+## 👥 Done By
 
 | Member | Role |
 |---|---|
