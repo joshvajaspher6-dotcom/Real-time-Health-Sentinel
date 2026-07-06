@@ -185,6 +185,39 @@ def version():
     click.echo("Intelligent Test Suite Health Monitor")
     click.echo("Built at Sri Shakthi Institute of Engineering and Technology")
 
+@cli.command()
+def coverage():
+    """Show code coverage report per module."""
+    from testsentry.coverage_analyzer import get_coverage_summary
+
+    summary = get_coverage_summary()
+
+    if not summary["files"]:
+        click.echo("[TestSentry] ⚠️  No coverage data found.")
+        click.echo("             Run: pytest --cov=src/testsentry tests/")
+        return
+
+    click.echo(f"\n📊 CODE COVERAGE REPORT")
+    click.echo(f"Overall: {summary['total_pct']}%")
+    click.echo("─" * 70)
+    click.echo(f"\n{'File':<45} {'Covered':<10} {'Missing':<10} {'%'}")
+    click.echo("─" * 70)
+
+    # Sort by coverage % ascending (worst first)
+    files = sorted(summary["files"].items(),
+                   key=lambda x: x[1]["pct"])
+
+    for filepath, data in files:
+        short = filepath[-42:] if len(filepath) > 42 else filepath
+        icon = "🟢" if data["pct"] >= 80 else "🟡" if data["pct"] >= 50 else "🔴"
+        click.echo(
+            f"{short:<45} "
+            f"{data['covered']:<10} "
+            f"{data['missing']:<10} "
+            f"{icon} {data['pct']}%"
+        )    
+
+
 
 def main():
     cli()

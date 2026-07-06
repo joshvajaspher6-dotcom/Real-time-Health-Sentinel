@@ -305,14 +305,14 @@
         <!-- Header -->
         <div class="header">
             <h1>🏥 TestSentry Health Report</h1>
-            <p>Run ID: 8e1c781d | Generated: 2026-07-04 12:24:10</p>
+            <p>Run ID: 55bc1cfe | Generated: 2026-07-06 13:59:40</p>
         </div>
         
         <!-- Main Score Card -->
         <div class="content">
             <div class="score-card">
                 <div class="label">Overall Health Score</div>
-                <div class="score">95/100</div>
+                <div class="score">90/100</div>
                 <div class="grade">Grade: A</div>
             </div>
             
@@ -321,17 +321,17 @@
                 <div class="metric-box">
                     <h3>⚡ Speed</h3>
                     <div class="value">15/20</div>
-                    <div class="subtext">Avg: 0.2356s</div>
+                    <div class="subtext">Avg: 0.4446s</div>
                 </div>
                 <div class="metric-box">
                     <h3>📊 Stability</h3>
                     <div class="value">20/20</div>
-                    <div class="subtext">Pass Rate: 96.3%</div>
+                    <div class="subtext">Pass Rate: 100.0%</div>
                 </div>
                 <div class="metric-box">
                     <h3>🎲 Flakiness</h3>
-                    <div class="value">20/20</div>
-                    <div class="subtext">0 flaky tests</div>
+                    <div class="value">15/20</div>
+                    <div class="subtext">1 flaky tests</div>
                 </div>
                 <div class="metric-box">
                     <h3>📚 Coverage</h3>
@@ -353,16 +353,16 @@
                 <div class="flakiness-summary">
                     <h3>⚠️ Flakiness Overview</h3>
                     <p>
-                        <strong>Total Flaky Tests:</strong> 0
-                        
-                            <span class="rating critical">1 CRITICAL</span>
+                        <strong>Total Flaky Tests:</strong> 1
                         
                         
+                        
+                            <span class="rating medium">1 MEDIUM</span>
                         
                     </p>
-                    <p><strong>Average Flakiness:</strong> 100.0%</p>
+                    <p><strong>Average Flakiness:</strong> 30.0%</p>
                     
-                    <p><strong>Worst Offender:</strong> tests/test_sample.py::test_intentional_failure (100.0% failure rate)</p>
+                    <p><strong>Worst Offender:</strong> tests/test_sample.py::test_intentional_failure (30.0% failure rate)</p>
                     
                 </div>
                 
@@ -374,12 +374,12 @@
                     <div class="flaky-test-item">
                         <div class="flaky-test-name">📌 tests/test_sample.py::test_intentional_failure</div>
                         <div class="flaky-test-metrics">
-                            <div>0/3 passed</div>
+                            <div>7/10 passed</div>
                             <div>
-                                <span class="rating critical">100.0%</span>
+                                <span class="rating medium">30.0%</span>
                             </div>
-                            <div>0 transitions</div>
-                            <div>STABLE</div>
+                            <div>1 transitions</div>
+                            <div>WORSENING</div>
                         </div>
                     </div>
                     
@@ -402,11 +402,11 @@
                     </div>
                     <div class="metric-box">
                         <h3>⚠️ Still Failing</h3>
-                        <div class="value">1</div>
+                        <div class="value">0</div>
                     </div>
                     <div class="metric-box">
                         <h3>✓ Stable</h3>
-                        <div class="value">26</div>
+                        <div class="value">40</div>
                     </div>
                 </div>
             </div>
@@ -417,6 +417,38 @@
             <div class="section">
                 <h2>👥 Git Ownership & At-Risk Modules</h2>
                 <div class="ownership-list">
+                    
+                    <div class="ownership-item">
+                        <div class="ownership-module">📁 tests/test_reg.py</div>
+                        <div class="ownership-details">
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Owner</div>
+                                <div class="ownership-detail-value">
+                                    
+                                        <span style="color: #999;">Unassigned</span>
+                                    
+                                </div>
+                            </div>
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Risk Level</div>
+                                <div class="ownership-detail-value">
+                                    <span class="rating high">HIGH</span>
+                                </div>
+                            </div>
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Recent Changes</div>
+                                <div class="ownership-detail-value">0</div>
+                            </div>
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Failing Tests</div>
+                                <div class="ownership-detail-value">10</div>
+                            </div>
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Risk Score</div>
+                                <div class="ownership-detail-value">100</div>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="ownership-item">
                         <div class="ownership-module">📁 tests/test_sample.py</div>
@@ -446,38 +478,6 @@
                             <div class="ownership-detail">
                                 <div class="ownership-detail-label">Risk Score</div>
                                 <div class="ownership-detail-value">34</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="ownership-item">
-                        <div class="ownership-module">📁 tests/test_reg.py</div>
-                        <div class="ownership-details">
-                            <div class="ownership-detail">
-                                <div class="ownership-detail-label">Owner</div>
-                                <div class="ownership-detail-value">
-                                    
-                                        <span style="color: #999;">Unassigned</span>
-                                    
-                                </div>
-                            </div>
-                            <div class="ownership-detail">
-                                <div class="ownership-detail-label">Risk Level</div>
-                                <div class="ownership-detail-value">
-                                    <span class="rating high">HIGH</span>
-                                </div>
-                            </div>
-                            <div class="ownership-detail">
-                                <div class="ownership-detail-label">Recent Changes</div>
-                                <div class="ownership-detail-value">0</div>
-                            </div>
-                            <div class="ownership-detail">
-                                <div class="ownership-detail-label">Failing Tests</div>
-                                <div class="ownership-detail-value">3</div>
-                            </div>
-                            <div class="ownership-detail">
-                                <div class="ownership-detail-label">Risk Score</div>
-                                <div class="ownership-detail-value">30</div>
                             </div>
                         </div>
                     </div>
@@ -560,12 +560,12 @@
                             <div class="ownership-detail">
                                 <div class="ownership-detail-label">Risk Level</div>
                                 <div class="ownership-detail-value">
-                                    <span class="rating low">LOW</span>
+                                    <span class="rating medium">MEDIUM</span>
                                 </div>
                             </div>
                             <div class="ownership-detail">
                                 <div class="ownership-detail-label">Recent Changes</div>
-                                <div class="ownership-detail-value">7</div>
+                                <div class="ownership-detail-value">8</div>
                             </div>
                             <div class="ownership-detail">
                                 <div class="ownership-detail-label">Failing Tests</div>
@@ -573,7 +573,39 @@
                             </div>
                             <div class="ownership-detail">
                                 <div class="ownership-detail-label">Risk Score</div>
-                                <div class="ownership-detail-value">7</div>
+                                <div class="ownership-detail-value">8</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="ownership-item">
+                        <div class="ownership-module">📁 src/testsentry/collector.py</div>
+                        <div class="ownership-details">
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Owner</div>
+                                <div class="ownership-detail-value">
+                                    
+                                        <span class="owner-badge">joshvajaspher6</span>
+                                    
+                                </div>
+                            </div>
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Risk Level</div>
+                                <div class="ownership-detail-value">
+                                    <span class="rating low">LOW</span>
+                                </div>
+                            </div>
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Recent Changes</div>
+                                <div class="ownership-detail-value">5</div>
+                            </div>
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Failing Tests</div>
+                                <div class="ownership-detail-value">0</div>
+                            </div>
+                            <div class="ownership-detail">
+                                <div class="ownership-detail-label">Risk Score</div>
+                                <div class="ownership-detail-value">5</div>
                             </div>
                         </div>
                     </div>
@@ -611,39 +643,7 @@
                     </div>
                     
                     <div class="ownership-item">
-                        <div class="ownership-module">📁 src/testsentry/collector.py</div>
-                        <div class="ownership-details">
-                            <div class="ownership-detail">
-                                <div class="ownership-detail-label">Owner</div>
-                                <div class="ownership-detail-value">
-                                    
-                                        <span class="owner-badge">joshvajaspher6</span>
-                                    
-                                </div>
-                            </div>
-                            <div class="ownership-detail">
-                                <div class="ownership-detail-label">Risk Level</div>
-                                <div class="ownership-detail-value">
-                                    <span class="rating low">LOW</span>
-                                </div>
-                            </div>
-                            <div class="ownership-detail">
-                                <div class="ownership-detail-label">Recent Changes</div>
-                                <div class="ownership-detail-value">4</div>
-                            </div>
-                            <div class="ownership-detail">
-                                <div class="ownership-detail-label">Failing Tests</div>
-                                <div class="ownership-detail-value">0</div>
-                            </div>
-                            <div class="ownership-detail">
-                                <div class="ownership-detail-label">Risk Score</div>
-                                <div class="ownership-detail-value">4</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="ownership-item">
-                        <div class="ownership-module">📁 src/testsentry/health_engine.py</div>
+                        <div class="ownership-module">📁 src/testsentry/cli.py</div>
                         <div class="ownership-details">
                             <div class="ownership-detail">
                                 <div class="ownership-detail-label">Owner</div>
@@ -675,7 +675,7 @@
                     </div>
                     
                     <div class="ownership-item">
-                        <div class="ownership-module">📁 tests/test_ownership.py</div>
+                        <div class="ownership-module">📁 src/testsentry/flakiness_analyzer.py</div>
                         <div class="ownership-details">
                             <div class="ownership-detail">
                                 <div class="ownership-detail-label">Owner</div>
@@ -707,7 +707,7 @@
                     </div>
                     
                     <div class="ownership-item">
-                        <div class="ownership-module">📁 templates/report.html</div>
+                        <div class="ownership-module">📁 data/training_dataset.json</div>
                         <div class="ownership-details">
                             <div class="ownership-detail">
                                 <div class="ownership-detail-label">Owner</div>
@@ -747,7 +747,7 @@
             <div class="section">
                 <h2>🤖 AI Triage Stats</h2>
                 <div class="ai-stats">
-                    <p><strong>Total Failures Analyzed:</strong> 1</p>
+                    <p><strong>Total Failures Analyzed:</strong> 0</p>
                     <p><strong>Cache Hits:</strong> 5 (reused results)</p>
                     <p><strong>API Calls:</strong> 3 (fresh analyses)</p>
                     <p><strong>Cache Efficiency:</strong> 62%</p>
