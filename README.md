@@ -251,8 +251,7 @@ B.E. Computer Science and Engineering — Final Year Project, 2026
 
 | Member | Role |
 |---|---|
-| Joshva | Core system, AI triage, CLI, CI/CD |
-| Teammate | Dataset generation, fine-tuning, testing |
+| Joshva | Core system, AI triage, CLI, CI/CD, Dataset generation, fine-tuning, testing|
 
 ---
 
