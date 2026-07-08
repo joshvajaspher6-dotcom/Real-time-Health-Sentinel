@@ -7,4 +7,4 @@ def test_subtraction():
 
 
 def test_intentional_failure():
-    assert 1 == 1 
+    assert 1 == 2 

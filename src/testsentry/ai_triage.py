@@ -40,7 +40,7 @@ class TriageResult(BaseModel):
 
 def get_groq_client():
     """Create Instructor-wrapped Groq client."""
-    groq_client = Groq(api_key=GROQ_API_KEY)
+    groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
     return instructor.from_groq(groq_client)
 
 
@@ -58,7 +58,7 @@ def triage_failure(result: dict) -> dict:
     error_msg = result.get("error_msg", "")
     test_name = result.get("test_name", "")
 
-    if not GROQ_API_KEY:
+    if not os.getenv("GROQ_API_KEY"):
         print("\n[TestSentry] ⚠️ GROQ_API_KEY not set. Skipping AI triage.")
         return None
 

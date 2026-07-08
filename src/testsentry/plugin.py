@@ -1,11 +1,12 @@
 from testsentry.ai_triage import langfuse
 import pytest
 import uuid
-from testsentry.collector import init_db, store_result
+from testsentry.collector import init_db, store_result, get_newly_failing_with_triage, get_fixed_tests
 from testsentry.ai_triage import triage_failure
 from testsentry.health_engine import calculate_health_score
 from testsentry.regression_detector import label_test
 from testsentry.report_generator import generate_report
+from testsentry.email_notifier import send_email_notification
 
 
 RUN_ID = str(uuid.uuid4())[:8]
@@ -37,6 +38,46 @@ def pytest_sessionfinish(session, exitstatus):
     print(f"{'='*50}")
 
     generate_report(RUN_ID)
+
+    
+    newly_failing = get_newly_failing_with_triage(RUN_ID)
+    fixed = get_fixed_tests(RUN_ID)
+
+    if newly_failing or fixed:
+        
+        owner_failures = {}
+        for test in newly_failing:
+            owner = test.get("owner", "unowned")
+            if owner == "unowned" or "@" not in owner:
+                continue  
+            if owner not in owner_failures:
+                owner_failures[owner] = []
+            owner_failures[owner].append(test)
+
+        
+        if owner_failures:
+            for owner_email, failures in owner_failures.items():
+                import testsentry.email_notifier as em
+                original_to = em.EMAIL_TO
+                em.EMAIL_TO = owner_email
+                send_email_notification(
+                    run_id=RUN_ID,
+                    newly_failing=failures,
+                    fixed=fixed,
+                    health_score=score,
+                    repo_name="Real-time-Health-Sentinel"
+                )
+                em.EMAIL_TO = original_to
+        else:
+        # Fallback — no git owners found, send to default EMAIL_TO
+            if newly_failing or fixed:
+                send_email_notification(
+                    run_id=RUN_ID,
+                    newly_failing=newly_failing,
+                    fixed=fixed,
+                    health_score=score,
+                    repo_name="Real-time-Health-Sentinel"
+                )
 
     langfuse.flush()
     print(f"[TestSentry] 📡 Langfuse traces sent")

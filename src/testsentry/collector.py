@@ -146,3 +146,55 @@ def cache_store(fp: str, triage_result: dict):
         datetime.now()
     ])
     conn.close()
+
+
+def get_newly_failing_with_triage(run_id: str) -> list:
+    """
+    Get newly failing tests with triage data for notifications.
+    """
+    from testsentry.ownership_mapper import get_file_owners
+
+    conn = get_connection()
+    rows = conn.execute("""
+        SELECT t.test_name,
+               t.error_msg,
+               MAX(c.category) as category,
+               MAX(c.suggested_fix) as suggested_fix
+        FROM test_runs t
+        LEFT JOIN triage_cache c
+            ON t.error_msg IS NOT NULL
+        WHERE t.run_id = ?
+        AND t.label = 'NEWLY_FAILING'
+        GROUP BY t.test_name, t.error_msg
+        LIMIT 10
+    """, [run_id]).fetchall()
+    conn.close()
+
+    owners = get_file_owners(".")
+    results = []
+
+    for row in rows:
+        test_name, error_msg, category, suggested_fix = row
+        file_path = test_name.split("::")[0] if "::" in test_name else test_name
+        owner = owners.get(file_path, "unowned")
+        results.append({
+            "test_name":     test_name,
+            "owner":         owner,
+            "category":      category or "UNKNOWN",
+            "suggested_fix": suggested_fix or "Check the error logs"
+        })
+
+    return results
+
+
+def get_fixed_tests(run_id: str) -> list:
+    """Get tests that were fixed in this run."""
+    conn = get_connection()
+    rows = conn.execute("""
+        SELECT test_name
+        FROM test_runs
+        WHERE run_id = ?
+        AND label = 'FIXED'
+    """, [run_id]).fetchall()
+    conn.close()
+    return [{"test_name": row[0]} for row in rows] 
