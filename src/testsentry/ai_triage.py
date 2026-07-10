@@ -65,16 +65,16 @@ def triage_failure(result: dict) -> dict:
     if not error_msg:
         return None
 
-    # Step 1 — Generate fingerprint
+    
     fp = fingerprint(error_msg)
 
-    # Step 2 — Check cache first
+    
     cached = cache_lookup(fp)
     if cached:
         print(f"\n[TestSentry] 💾 CACHE HIT — {test_name}")
         print(f"             Category: {cached['category']}")
 
-        # Log cache hit to Langfuse v4
+        
         try:
             with langfuse.start_as_current_observation(
                 as_type="span",
@@ -91,7 +91,6 @@ def triage_failure(result: dict) -> dict:
 
         return cached
 
-    # Step 3 — Cache miss — call Groq API
     print(f"\n[TestSentry] 🤖 AI TRIAGE — {test_name}")
 
     try:
@@ -133,7 +132,6 @@ Return a structured triage with category, confidence as a plain integer
         except Exception:
             category_value = str(triage.category)
 
-        # Step 4 — Build result dict
         triage_dict = {
             "category":        category_value,
             "confidence_pct":  int(triage.confidence_pct),
@@ -143,10 +141,8 @@ Return a structured triage with category, confidence as a plain integer
             "cache_hit":       False
         }
 
-        # Step 5 — Store in cache
         cache_store(fp, triage_dict)
 
-        # Log API call to Langfuse v4
         try:
             with langfuse.start_as_current_observation(
                 as_type="generation",
@@ -165,7 +161,6 @@ Return a structured triage with category, confidence as a plain integer
         except Exception as e:
             print(f"[TestSentry] ⚠️ Langfuse error: {e}")
 
-        # Print result
         print(f"             Category:   {triage_dict['category']}")
         print(f"             Confidence: {triage_dict['confidence_pct']}%")
         print(f"             Why:        {triage_dict['why_it_failed']}")
